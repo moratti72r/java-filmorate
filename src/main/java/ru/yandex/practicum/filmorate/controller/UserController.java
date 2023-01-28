@@ -10,67 +10,60 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@RequestMapping ("/users")
+@RequestMapping("/users")
 @RestController
 @Validated
 public class UserController {
 
     private static final Logger log = LoggerFactory.getLogger("UserController.class");
 
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer, User> users = new HashMap<>();
 
     private int idGenerator = 0;
 
     @GetMapping()
-    public ResponseEntity<?> findAll (){
+    public ResponseEntity<?> findAll() {
         log.info("Получен GET запрос.");
-        return !users.isEmpty()
-                ? new ResponseEntity<>(users, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(users.values(), HttpStatus.OK);
     }
 
 
     @PostMapping()
-    public ResponseEntity<?> create (@RequestBody @Valid User user){
-        if (user.getName()==null || user.getName().isEmpty() ){
+    public ResponseEntity<?> create(@RequestBody @Valid User user) {
+        if (user.getName() == null || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         idGenerator++;
         user.setId(idGenerator);
-        users.add(user);
+        users.put(idGenerator, user);
         log.info("Пользователь добавлен");
-        return new ResponseEntity<>(user,HttpStatus.CREATED);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
 
     @PutMapping()
-    public ResponseEntity<?> upDate (@RequestBody @Valid User user){
-        if (user.getName().isEmpty()){
+    public ResponseEntity<?> upDate(@RequestBody @Valid User user) {
+        if (user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
         if (!users.isEmpty()) {
-            boolean cont = true;
-            for (User userFromList : users) {
-                if (userFromList.getId()==user.getId()) {
-                    cont = false;
-                    users.remove(userFromList);
-                    users.add(user);
-                    log.info("Пользователь с id "+user.getId()+" изменен");
-                    break;
-                }
+            if (users.containsKey(user.getId())) {
+                users.put(user.getId(), user);
+                log.info("Пользователь с id " + user.getId() + " изменен");
+            } else {
+                log.warn("Пользователь с id " + user.getId() + " отсутствует");
+                return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
             }
-            if (cont){
-                log.warn("Пользователь с id "+user.getId()+" отсутствует");
-                return new ResponseEntity<> (user,HttpStatus.NOT_FOUND);
-            }
-        }else {
+        } else {
             log.warn("Пользователи отсутствуют");
-            return new ResponseEntity<> (user,HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(user, HttpStatus.NOT_FOUND);
         }
 
-        return new ResponseEntity<> (user,HttpStatus.OK);
+        return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
 }

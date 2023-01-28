@@ -1,4 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
@@ -15,7 +16,6 @@ public class User {
     @Email
     private String email;
 
-    @NotNull
     @NotBlank
     private String login;
 

@@ -16,8 +16,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 public @interface TimeAfterDate {
 
-    String date ();
+    String date();
+
     String message() default "{TimeAfterDate.invalid}";
-    Class<?> [] groups() default {};
-    Class<? extends Payload>[] payload () default {};
+
+    Class<?>[] groups() default {};
+
+    Class<? extends Payload>[] payload() default {};
 }
