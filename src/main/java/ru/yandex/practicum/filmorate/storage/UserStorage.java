@@ -14,4 +14,5 @@ public interface UserStorage {
 
     User upDate(User user);
 
+    boolean contains(Integer id);
 }

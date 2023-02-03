@@ -1,54 +1,40 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import javax.validation.Valid;
 import java.util.*;
 
 @RequestMapping("/films")
 @RestController
+@RequiredArgsConstructor
 @Validated
 public class FilmController {
 
-    private static final Logger log = LoggerFactory.getLogger("FilmController.class");
-
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
-
-    @Autowired
-    public FilmController(FilmService filmService, InMemoryFilmStorage filmStorage) {
-
-        this.filmService = filmService;
-        this.filmStorage = filmStorage;
-    }
 
     @GetMapping()
     public List<Film> findAll() {
-        log.info("Получен GET запрос.");
-        return new ArrayList<Film>(filmStorage.findAll().values());
+        return new ArrayList<Film>(filmService.getFilmStorage().findAll().values());
     }
 
     @PostMapping()
     public Film create(@RequestBody @Valid Film film) {
-        return filmStorage.create(film);
+        return filmService.getFilmStorage().create(film);
     }
 
     @PutMapping()
     public Film upDate(@RequestBody @Valid Film film) {
-        return filmStorage.upDate(film);
+        return filmService.getFilmStorage().upDate(film);
     }
 
     @GetMapping("/{id}")
     public Film getById(@PathVariable Integer id) {
-        return filmStorage.getById(id);
+        return filmService.getFilmStorage().getById(id);
     }
 
     @PutMapping("/{id}/like/{userId}")

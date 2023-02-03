@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -9,10 +8,9 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-
-    private static final Logger log = LoggerFactory.getLogger("InMemoryFilmStorage.class");
 
     private final Map<Integer, Film> films = new HashMap<>();
 
@@ -25,8 +23,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public boolean contains(Integer id) {
+        return films.containsKey(id);
+    }
+
+    @Override
     public Film getById(Integer id) {
-        if (findAll().containsKey(id)) {
+        if (films.containsKey(id)) {
             log.info("Фильм с id " + id + " получен");
             return findAll().get(id);
         } else {

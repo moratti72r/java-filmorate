@@ -30,8 +30,14 @@ public class FilmAndUserExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleIncorrectArguments(IncorrectArgumentsException e) {
+        return Map.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public Map<String, String> handleIncorrectArguments(RuntimeException e) {
         return Map.of("message", e.getMessage());
     }
 }

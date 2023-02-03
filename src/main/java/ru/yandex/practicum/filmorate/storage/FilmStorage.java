@@ -8,7 +8,9 @@ public interface FilmStorage {
 
     Map<Integer, Film> findAll();
 
-    public Film getById(Integer id);
+    boolean contains(Integer id);
+
+    Film getById(Integer id);
 
     Film create(Film film);
 

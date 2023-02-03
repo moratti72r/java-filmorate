@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -9,10 +9,9 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-
-    private static final Logger log = LoggerFactory.getLogger("InMemoryUserStorage.class");
 
     private final Map<Integer, User> users = new HashMap<>();
 
@@ -25,9 +24,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
+    public boolean contains(Integer id) {
+        return users.containsKey(id);
+    }
+
+    @Override
     public User getById(Integer id) {
         if (findAll().containsKey(id)) {
-            log.info("Получен GET запрос");
+            log.info("Пользователь с id " + id + " получен");
             return findAll().get(id);
         } else {
             log.warn("Пользователь с id " + id + " отсутствует");
@@ -37,7 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User create(User user) {
-        if (user.getName() == null || user.getName().isEmpty()) {
+        if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
         idGenerator++;
@@ -49,7 +53,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User upDate(User user) {
-        if (user.getName().isEmpty()) {
+        if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
         if (users.containsKey(user.getId())) {
@@ -59,7 +63,6 @@ public class InMemoryUserStorage implements UserStorage {
             log.warn("Пользователь с id " + user.getId() + " отсутствует");
             throw new UserNotFoundException("Пользватель с id " + user.getId() + " отсутствует");
         }
-
         return user;
     }
 }
