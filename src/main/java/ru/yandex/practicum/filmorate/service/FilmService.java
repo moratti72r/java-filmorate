@@ -64,22 +64,8 @@ public class FilmService {
     }
 
     public List<Film> getMostPopularFilms(int count) {
-        if (!filmStorage.findAll().isEmpty()) {
-            List<Film> sortingList = filmStorage.findAll().values().stream().sorted((f1, f2) -> {
-                        return -1 * (f1.getLikes() - f2.getLikes());
-                    })
-                    .collect(Collectors.toList());
+        log.info("Получены " + count + " наиболее популярных фильмов");
+        return filmStorage.getSortFilms().stream().limit(count).collect(Collectors.toList());
 
-            if (count == 0) {
-                log.info("Получены 10 наиболее популярных фильмов");
-                return sortingList.stream().limit(10).collect(Collectors.toList());
-            } else {
-                log.info("Получены " + count + " наиболее популярных фильмов");
-                return sortingList.stream().limit(count).collect(Collectors.toList());
-            }
-        } else {
-            log.warn("Список фильмов пустой");
-            throw new FilmNotFoundException("Список фильмов пустой");
-        }
     }
 }

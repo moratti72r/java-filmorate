@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -21,6 +23,20 @@ public class InMemoryFilmStorage implements FilmStorage {
         log.info("Список фильмов получен");
         return films;
     }
+
+    @Override
+    public List<Film> getSortFilms() {
+        if (!films.isEmpty()) {
+            return films.values().stream().sorted((f1, f2) -> {
+                        return -1 * (f1.getLikes() - f2.getLikes());
+                    })
+                    .collect(Collectors.toList());
+        } else {
+            log.warn("Список для сортировки не должен быть пустым");
+            throw new FilmNotFoundException("Список для сортировки не должен быть пустым");
+        }
+    }
+
 
     @Override
     public boolean contains(Integer id) {

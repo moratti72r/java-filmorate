@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.*;
 
 @RequestMapping("/films")
@@ -48,12 +49,8 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> getMostPopularFilms(@RequestParam(required = false) Integer count) {
-        if (count == null) {
-            return filmService.getMostPopularFilms(0);
-        } else {
-            return filmService.getMostPopularFilms(count);
-        }
+    public List<Film> getMostPopularFilms(@RequestParam(defaultValue = "10") @Min(value = 0) Integer count) {
+        return filmService.getMostPopularFilms(count);
     }
 }
 
