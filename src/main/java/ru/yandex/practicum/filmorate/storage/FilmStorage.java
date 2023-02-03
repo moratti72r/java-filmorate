@@ -7,15 +7,12 @@ import java.util.Map;
 
 public interface FilmStorage {
 
-    Map<Integer, Film> findAll();
+    Map<Integer, Film> getAll();
 
     boolean contains(Integer id);
 
-    List<Film> getSortFilms();
+    List<Film> getTopFilms(int limit);
 
     Film getById(Integer id);
 
-    Film create(Film film);
-
-    Film upDate(Film film);
 }

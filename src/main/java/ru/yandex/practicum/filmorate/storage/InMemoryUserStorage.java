@@ -3,10 +3,13 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -15,10 +18,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Integer, User> users = new HashMap<>();
 
-    private int idGenerator = 0;
-
     @Override
-    public Map<Integer, User> findAll() {
+    public Map<Integer, User> getAll() {
         log.info("Вывод списка пользователей");
         return users;
     }
@@ -30,9 +31,9 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getById(Integer id) {
-        if (findAll().containsKey(id)) {
+        if (contains(id)) {
             log.info("Пользователь с id " + id + " получен");
-            return findAll().get(id);
+            return users.get(id);
         } else {
             log.warn("Пользователь с id " + id + " отсутствует");
             throw new UserNotFoundException("Пользователь с id " + id + " отсутствует");
@@ -40,30 +41,47 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User create(User user) {
-        if (StringUtils.isEmpty(user.getName())) {
-            user.setName(user.getLogin());
+    public List<User> getAllFriends(Integer id) {
+        if (contains(id)) {
+            ArrayList<User> allFriends = new ArrayList<>();
+            for (Integer idFriends : getById(id).getFriends()) {
+                allFriends.add(getById(idFriends));
+            }
+
+            log.info("Список друзей пользователя " + id + " получен");
+
+            return allFriends;
+        } else {
+
+            log.warn("Пользователь с id " + id + " отсутствует");
+
+            throw new UserNotFoundException("Пользователь с id " + id + " отсутствует");
         }
-        idGenerator++;
-        user.setId(idGenerator);
-        users.put(idGenerator, user);
-        log.info("Пользователь добавлен");
-        return user;
     }
 
     @Override
-    public User upDate(User user) {
-        if (StringUtils.isEmpty(user.getName())) {
-            user.setName(user.getLogin());
+    public List<User> getMutualFriends(Integer idUser, Integer otherIdUser) {
+        if (idUser.equals(otherIdUser)) {
+            log.warn("Значения не должны быть одинаковыми");
+            throw new IncorrectArgumentsException("Значения не должны быть одинаковыми");
         }
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("Пользователь изменен");
-        } else {
-            log.warn("Пользователь с id " + user.getId() + " отсутствует");
-            throw new UserNotFoundException("Пользватель с id " + user.getId() + " отсутствует");
+        if (!contains(idUser)) {
+            log.warn("Пользователь с id " + idUser + " отсутствует");
+            throw new UserNotFoundException("Пользователь с id " + idUser + " отсутствует");
         }
-        return user;
+        if (!contains(otherIdUser)) {
+            log.warn("Пользователь с id " + otherIdUser + " отсутствует");
+            throw new UserNotFoundException("Пользователь с id " + otherIdUser + " отсутствует");
+        }
+
+        ArrayList<User> mutualFriends = new ArrayList<>();
+        for (Integer id : getById(idUser).getFriends()) {
+            if (getById(otherIdUser).getFriends().contains(id)) {
+                mutualFriends.add(getById(id));
+            }
+        }
+        log.info("Список общих друзей пользователей получен");
+        return mutualFriends;
     }
 }
 

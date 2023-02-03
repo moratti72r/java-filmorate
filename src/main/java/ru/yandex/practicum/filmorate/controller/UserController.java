@@ -19,24 +19,24 @@ public class UserController {
 
     @GetMapping()
     public List<User> findAll() {
-        return new ArrayList<User>(userService.getUserStorage().findAll().values());
+        return new ArrayList<User>(userService.findAll());
     }
 
 
     @PostMapping()
     public User create(@RequestBody @Valid User user) {
-        return userService.getUserStorage().create(user);
+        return userService.create(user);
     }
 
 
     @PutMapping()
     public User upDate(@RequestBody @Valid User user) {
-        return userService.getUserStorage().upDate(user);
+        return userService.upDate(user);
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Integer id) {
-        return userService.getUserStorage().getById(id);
+    public User findById(@PathVariable Integer id) {
+        return userService.findById(id);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
