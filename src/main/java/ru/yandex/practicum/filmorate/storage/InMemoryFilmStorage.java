@@ -14,6 +14,8 @@ import java.util.stream.Collectors;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
+    private int idGenerator = 0;
+
     private final Map<Integer, Film> films = new HashMap<>();
 
 
@@ -21,6 +23,27 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Map<Integer, Film> getAll() {
         log.info("Список фильмов получен");
         return films;
+    }
+
+    @Override
+    public Film create (Film film){
+        idGenerator++;
+        film.setId(idGenerator);
+        films.put(idGenerator, film);
+        log.info("Фильм успешно добавлен");
+        return film;
+    }
+
+    @Override
+    public Film upDate (Film film){
+        if (contains(film.getId())) {
+            films.put(film.getId(), film);
+        } else {
+            log.warn("Фильм с id " + film.getId() + " отсутствует");
+            throw new FilmNotFoundException("Фильм с id " + film.getId() + " отсутствует");
+        }
+        log.info("Фильм успешно изменен");
+        return film;
     }
 
     @Override

@@ -16,12 +16,34 @@ import java.util.Map;
 @Component
 public class InMemoryUserStorage implements UserStorage {
 
+    private int idGenerator = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
     public Map<Integer, User> getAll() {
         log.info("Вывод списка пользователей");
         return users;
+    }
+
+    @Override
+    public User create (User user) {
+        idGenerator++;
+        user.setId(idGenerator);
+        users.put(idGenerator, user);
+        log.info("Пользователь добавлен");
+        return user;
+    }
+
+    @Override
+    public User upDate (User user){
+        if (contains(user.getId())) {
+            users.put(user.getId(), user);
+            log.info("Пользователь изменен");
+        } else {
+            log.warn("Пользователь с id " + user.getId() + " отсутствует");
+            throw new UserNotFoundException("Пользватель с id " + user.getId() + " отсутствует");
+        }
+        return user;
     }
 
     @Override

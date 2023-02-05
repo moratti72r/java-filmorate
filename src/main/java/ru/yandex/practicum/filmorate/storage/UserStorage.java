@@ -9,6 +9,10 @@ public interface UserStorage {
 
     Map<Integer, User> getAll();
 
+    User create (User user);
+
+    User upDate (User user);
+
     User getById(Integer id);
 
     boolean contains (Integer id);

@@ -16,8 +16,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
 
-    private int idGenerator = 0;
-
     private final UserStorage userStorage;
 
     public List<User> findAll() {
@@ -25,6 +23,7 @@ public class UserService {
     }
 
     public User findById(Integer id) {
+
         return userStorage.getById(id);
     }
 
@@ -77,25 +76,14 @@ public class UserService {
         if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
-        idGenerator++;
-        user.setId(idGenerator);
-        userStorage.getAll().put(idGenerator, user);
-        log.info("Пользователь добавлен");
-        return user;
+        return userStorage.create(user);
     }
 
     public User upDate(User user) {
         if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
-        if (userStorage.contains(user.getId())) {
-            userStorage.getAll().put(user.getId(), user);
-            log.info("Пользователь изменен");
-        } else {
-            log.warn("Пользователь с id " + user.getId() + " отсутствует");
-            throw new UserNotFoundException("Пользватель с id " + user.getId() + " отсутствует");
-        }
-        return user;
+        return userStorage.upDate(user);
     }
 
 

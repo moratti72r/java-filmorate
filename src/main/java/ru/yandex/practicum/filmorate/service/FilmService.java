@@ -19,7 +19,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmService {
 
-    private int idGenerator = 0;
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
@@ -36,23 +35,12 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        idGenerator++;
-        film.setId(idGenerator);
-        filmStorage.getAll().put(idGenerator, film);
-        log.info("Фильм успешно добавлен");
-        return film;
+        return filmStorage.create (film);
     }
 
 
     public Film upDate(Film film) {
-        if (filmStorage.contains(film.getId())) {
-            filmStorage.getAll().put(film.getId(), film);
-        } else {
-            log.warn("Фильм с id " + film.getId() + " отсутствует");
-            throw new FilmNotFoundException("Фильм с id " + film.getId() + " отсутствует");
-        }
-        log.info("Фильм успешно изменен");
-        return film;
+        return filmStorage.upDate(film);
     }
 
     public Film addLike(Integer idFilm, Integer idUser) {

@@ -9,6 +9,10 @@ public interface FilmStorage {
 
     Map<Integer, Film> getAll();
 
+    Film create (Film film);
+
+    Film upDate (Film film);
+
     boolean contains(Integer id);
 
     List<Film> getTopFilms(int limit);
