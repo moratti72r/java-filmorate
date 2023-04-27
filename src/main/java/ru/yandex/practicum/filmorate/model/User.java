@@ -28,6 +28,6 @@ public class User {
 
     private Set<Integer> friends = new HashSet<>();
 
-    private Set<Integer> likes = new HashSet<>();
+    private Set<Integer> likesOnMovies = new HashSet<>();
 
 }

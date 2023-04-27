@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genres;
+import ru.yandex.practicum.filmorate.model.MPA;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,29 +23,29 @@ public class InMemoryFilmStorage implements FilmStorage {
 
 
     @Override
-    public Map<Integer, Film> getAll() {
+    public List<Film> getAll() {
         log.info("Список фильмов получен");
-        return films;
+        return new ArrayList<Film>(films.values());
     }
 
     @Override
-    public Film create (Film film){
+    public Film create(Film film) {
         idGenerator++;
         film.setId(idGenerator);
         films.put(idGenerator, film);
-        log.info("Фильм успешно добавлен");
+        log.info("Фильм с id=" + film.getId() + " успешно добавлен");
         return film;
     }
 
     @Override
-    public Film upDate (Film film){
+    public Film upDate(Film film) {
         if (contains(film.getId())) {
             films.put(film.getId(), film);
         } else {
             log.warn("Фильм с id " + film.getId() + " отсутствует");
             throw new FilmNotFoundException("Фильм с id " + film.getId() + " отсутствует");
         }
-        log.info("Фильм успешно изменен");
+        log.info("Фильм с id=" + film.getId() + " успешно изменен");
         return film;
     }
 
@@ -73,5 +76,24 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public List<Genres> getAllGenres() {
+        return new ArrayList<>(InMemoryGenreStorage.getGenres().values());
+    }
+
+    @Override
+    public Genres getGenreById(Integer id) {
+        return InMemoryGenreStorage.getGenres().get(id);
+    }
+
+    @Override
+    public List<MPA> getAllMPA() {
+        return new ArrayList<>(InMemoryMPAStorage.getMpa().values());
+    }
+
+    @Override
+    public MPA getMpaById(Integer id) {
+        return InMemoryMPAStorage.getMpa().get(id);
+    }
 
 }

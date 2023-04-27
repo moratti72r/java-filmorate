@@ -24,6 +24,18 @@ public class FilmAndUserExceptionHandler {
     }
 
     @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleGenreNotFound(GenreNotFoundException e) {
+        return Map.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Map<String, String> handleMPANotFound(MPANotFoundException e) {
+        return Map.of("message", e.getMessage());
+    }
+
+    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public Map<String, String> handleValidation(ValidationException e) {
         return Map.of("message", e.getMessage());

@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
@@ -20,25 +19,25 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
-    public Map<Integer, User> getAll() {
-        log.info("Вывод списка пользователей");
-        return users;
+    public List<User> getAll() {
+        log.info("Список пользователей получен");
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public User create (User user) {
+    public User create(User user) {
         idGenerator++;
         user.setId(idGenerator);
         users.put(idGenerator, user);
-        log.info("Пользователь добавлен");
+        log.info("Пользователь с id=" + user.getId() + " добавлен");
         return user;
     }
 
     @Override
-    public User upDate (User user){
+    public User upDate(User user) {
         if (contains(user.getId())) {
             users.put(user.getId(), user);
-            log.info("Пользователь изменен");
+            log.info("Пользователь успешно изменен");
         } else {
             log.warn("Пользователь с id " + user.getId() + " отсутствует");
             throw new UserNotFoundException("Пользватель с id " + user.getId() + " отсутствует");
@@ -66,8 +65,8 @@ public class InMemoryUserStorage implements UserStorage {
     public List<User> getAllFriends(Integer id) {
         if (contains(id)) {
             ArrayList<User> allFriends = new ArrayList<>();
-            for (Integer idFriends : getById(id).getFriends()) {
-                allFriends.add(getById(idFriends));
+            for (Integer idFriend : getById(id).getFriends()) {
+                allFriends.add(getById(idFriend));
             }
 
             log.info("Список друзей пользователя " + id + " получен");

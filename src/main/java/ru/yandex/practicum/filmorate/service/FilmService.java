@@ -7,11 +7,11 @@ import ru.yandex.practicum.filmorate.exception.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
 import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genres;
+import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
-
-import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -23,7 +23,7 @@ public class FilmService {
     private final UserStorage userStorage;
 
     public List<Film> findAll() {
-        return new ArrayList<Film>(filmStorage.getAll().values());
+        return filmStorage.getAll();
     }
 
     public Film findById(Integer id) {
@@ -35,7 +35,7 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        return filmStorage.create (film);
+        return filmStorage.create(film);
     }
 
 
@@ -57,15 +57,17 @@ public class FilmService {
         User user = userStorage.getById(idUser);
         Film film = findById(idFilm);
 
-        if (user.getLikes().contains(film.getId())) {
+        if (user.getLikesOnMovies().contains(film.getId())) {
             log.warn("Пользователь " + idUser + " уже оценивал фильм " + idFilm);
             throw new IncorrectArgumentsException("Пользователь " + idUser + " уже оценивал фильм " + idFilm);
         }
 
-        user.getLikes().add(film.getId());
+        user.getLikesOnMovies().add(film.getId());
         film.setLikes(film.getLikes() + 1);
+
+        userStorage.upDate(user);
         log.info("Пользователь " + idUser + " оценил фильм " + idFilm);
-        return filmStorage.getById(idFilm);
+        return filmStorage.upDate(film);
 
     }
 
@@ -82,14 +84,31 @@ public class FilmService {
         User user = userStorage.getById(idUser);
         Film film = findById(idFilm);
 
-        if (!user.getLikes().contains(idFilm)) {
+        if (!user.getLikesOnMovies().contains(idFilm)) {
             log.warn("Пользватель " + idUser + " еще не оценивал фильм " + idFilm);
             throw new IncorrectArgumentsException("Пользватель " + idUser + " еще не оценивал фильм " + idFilm);
         }
         film.setLikes(film.getLikes() - 1);
-        user.getLikes().remove(film.getId());
+        user.getLikesOnMovies().remove(film.getId());
+
+        userStorage.upDate(user);
         log.info("Пользователь " + idUser + " удалил оценку с фильма " + idFilm);
-        return film;
+        return filmStorage.upDate(film);
     }
 
+    public List<Genres> getAllGenres() {
+        return filmStorage.getAllGenres();
+    }
+
+    public Genres getGenreById(Integer id) {
+        return filmStorage.getGenreById(id);
+    }
+
+    public List<MPA> getAllMpa() {
+        return filmStorage.getAllMPA();
+    }
+
+    public MPA getMpaById(Integer id) {
+        return filmStorage.getMpaById(id);
+    }
 }

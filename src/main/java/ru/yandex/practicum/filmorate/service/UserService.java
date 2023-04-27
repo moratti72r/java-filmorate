@@ -16,10 +16,11 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
 
+
     private final UserStorage userStorage;
 
     public List<User> findAll() {
-        return new ArrayList<User>(userStorage.getAll().values());
+        return userStorage.getAll();
     }
 
     public User findById(Integer id) {
@@ -48,26 +49,30 @@ public class UserService {
             log.warn("Пользователь с id " + idUser + " отсутствует");
             throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
         }
-        findById(idUser).getFriends().add(idFriend);
-        findById(idFriend).getFriends().add(idUser);
+        User user = findById(idUser);
+        User friend = findById(idFriend);
+        user.getFriends().add(friend.getId());
 
         log.info("Пользователь успешно добавлен в друзья");
 
-        return findById(idUser);
+        return userStorage.upDate(user);
     }
 
     public User removeToFriends(Integer idUser, Integer idFriend) {
-        if (findById(idUser).getFriends().contains(idFriend)) {
-            findById(idFriend).getFriends().remove(idUser);
-            findById(idUser).getFriends().remove(idFriend);
+        User user = findById(idUser);
+        User friend = findById(idFriend);
+        if (user.getFriends().contains(idFriend)) {
+            user.getFriends().remove(idFriend);
 
+            if (friend.getFriends().contains(idUser)) {
+                friend.getFriends().remove(idUser);
+            }
             log.info("Пользователь успешно удален из друзей");
 
-            return findById(idUser);
+            userStorage.upDate(friend);
+            return userStorage.upDate(user);
         } else {
-
             log.warn("Пользователь с id " + idFriend + " отсутствует");
-
             throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
         }
     }

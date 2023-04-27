@@ -9,6 +9,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.*;
 
 @Data
 public class Film {
@@ -32,5 +33,9 @@ public class Film {
     int duration;
 
     int likes;
+
+    Set<Genres> genres = new HashSet<>();
+
+    MPA mpa;
 
 }
