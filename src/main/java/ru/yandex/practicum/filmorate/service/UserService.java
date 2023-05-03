@@ -3,9 +3,9 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
+import ru.yandex.practicum.filmorate.dao.FriendsDao;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,10 +16,12 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
 
+
     private final UserStorage userStorage;
+    private final FriendsDao friendsDao;
 
     public List<User> findAll() {
-        return new ArrayList<User>(userStorage.getAll().values());
+        return userStorage.getAll();
     }
 
     public User findById(Integer id) {
@@ -35,41 +37,13 @@ public class UserService {
         return userStorage.getMutualFriends(idUser, otherIdUser);
     }
 
-    public User addToFriends(Integer idUser, Integer idFriend) {
-        if (idUser.equals(idFriend)) {
-            log.warn("Значения не должны быть одинаковыми");
-            throw new IncorrectArgumentsException("Значения не должны быть одинаковыми");
-        }
-        if (!userStorage.contains(idUser)) {
-            log.warn("Пользователь с id " + idUser + " отсутствует");
-            throw new UserNotFoundException("Пользователь с id " + idUser + " отсутствует");
-        }
-        if (!userStorage.contains(idFriend)) {
-            log.warn("Пользователь с id " + idUser + " отсутствует");
-            throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
-        }
-        findById(idUser).getFriends().add(idFriend);
-        findById(idFriend).getFriends().add(idUser);
+    public ResponseEntity<?> addToFriends(Integer idUser, Integer idFriend) {
 
-        log.info("Пользователь успешно добавлен в друзья");
-
-        return findById(idUser);
+        return friendsDao.addToFriends(idUser, idFriend);
     }
 
-    public User removeToFriends(Integer idUser, Integer idFriend) {
-        if (findById(idUser).getFriends().contains(idFriend)) {
-            findById(idFriend).getFriends().remove(idUser);
-            findById(idUser).getFriends().remove(idFriend);
-
-            log.info("Пользователь успешно удален из друзей");
-
-            return findById(idUser);
-        } else {
-
-            log.warn("Пользователь с id " + idFriend + " отсутствует");
-
-            throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
-        }
+    public ResponseEntity<?> removeToFriends(Integer idUser, Integer idFriend) {
+        return friendsDao.removeToFriends(idUser, idFriend);
     }
 
     public User create(User user) {
@@ -85,6 +59,4 @@ public class UserService {
         }
         return userStorage.upDate(user);
     }
-
-
 }

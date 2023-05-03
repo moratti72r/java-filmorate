@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -39,12 +40,12 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film addLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public ResponseEntity<?> addLike(@PathVariable Integer id, @PathVariable Integer userId) {
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
+    public ResponseEntity<?> removeLike(@PathVariable Integer id, @PathVariable Integer userId) {
         return filmService.removeLike(id, userId);
     }
 

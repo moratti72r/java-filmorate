@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
@@ -40,12 +41,12 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public ResponseEntity addToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         return userService.addToFriends(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User removeToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
+    public ResponseEntity removeToFriends(@PathVariable Integer id, @PathVariable Integer friendId) {
         return userService.removeToFriends(id, friendId);
     }
 

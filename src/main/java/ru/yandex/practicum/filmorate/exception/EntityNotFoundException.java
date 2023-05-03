@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.exception;
 
-public class IncorrectArgumentsException extends RuntimeException {
-
+public class EntityNotFoundException extends RuntimeException {
     private Class clazz;
 
-    public IncorrectArgumentsException(Class clazz) {
+    public EntityNotFoundException (Class clazz){
         this.clazz = clazz;
     }
 
+    @Override
     public String getMessage() {
         return clazz.getName();
     }

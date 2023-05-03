@@ -1,21 +1,20 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.validators.timevalidator.TimeAfterDate;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.*;
 
 @Data
 public class Film {
 
     private int id;
 
-    @NotEmpty
+    @NotBlank
     private String name;
 
     @NotNull
@@ -27,10 +26,15 @@ public class Film {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate releaseDate;
 
-    @NotNull
     @Min(value = 1)
-    int duration;
+    private int duration;
 
-    int likes;
+    @JsonIgnore
+    private int likes;
+
+    Set<Genres> genres = new TreeSet<>();
+
+    @NotNull
+    MPA mpa;
 
 }
