@@ -17,7 +17,6 @@ public class MPAController {
 
     private final MpaDaoImpl mpaDao;
 
-
     @GetMapping()
     public List<MPA> findAllMpa() {
         return mpaDao.getAll();

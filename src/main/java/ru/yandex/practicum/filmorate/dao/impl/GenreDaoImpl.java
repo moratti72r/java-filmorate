@@ -30,7 +30,7 @@ public class GenreDaoImpl implements GenreDao {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from genres where id = ?", id);
         if (filmRows.next()) {
             String sq = "SELECT * FROM genres WHERE id = ?";
-            log.info("Жанр с id={} получен",id);
+            log.info("Жанр с id={} получен", id);
             return jdbcTemplate.queryForObject(sq, genreRowMapper(), id);
         } else {
             throw new EntityNotFoundException(Genres.class);

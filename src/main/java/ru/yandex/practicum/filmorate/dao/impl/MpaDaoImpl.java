@@ -31,7 +31,7 @@ public class MpaDaoImpl implements MpaDao {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select * from mpa where id = ?", id);
         if (filmRows.next()) {
             String sq = "SELECT * FROM mpa WHERE id = ?";
-            log.info("Возрастной рейтинг с id={} получен",id);
+            log.info("Возрастной рейтинг с id={} получен", id);
             return jdbcTemplate.queryForObject(sq, mpaRowMapper(), id);
         } else {
             throw new EntityNotFoundException(MPA.class);

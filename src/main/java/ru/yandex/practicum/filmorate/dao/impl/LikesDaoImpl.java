@@ -33,7 +33,7 @@ public class LikesDaoImpl implements LikesDao {
         }
         jdbcTemplate.update("INSERT INTO likes (id_user,id_film) VALUES (?,?)", idUser, idFilm);
         jdbcTemplate.update("UPDATE films SET likes = likes + 1 WHERE id = ?", idFilm);
-        log.info("Пользователь c id={} оценил фильм c id={}",idUser,idFilm);
+        log.info("Пользователь c id={} оценил фильм c id={}", idUser, idFilm);
 
         return new ResponseEntity<>(HttpStatus.OK);
 
@@ -46,7 +46,7 @@ public class LikesDaoImpl implements LikesDao {
         }
         jdbcTemplate.update("DELETE FROM likes WHERE id_user = ? AND id_film = ?", idUser, idFilm);
         jdbcTemplate.update("UPDATE films SET likes = likes - 1 WHERE id = ?", idFilm);
-        log.info("Пользователь c id={} удалил оценку с фильма c id={}",idUser,idFilm);
+        log.info("Пользователь c id={} удалил оценку с фильма c id={}", idUser, idFilm);
 
         return new ResponseEntity<>(HttpStatus.OK);
 

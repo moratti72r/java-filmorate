@@ -31,7 +31,7 @@ public class FriendsDaoImpl implements FriendsDao {
         }
 
         jdbcTemplate.update("INSERT INTO friends (id_user,id_friend) VALUES (?,?)", idUser, idFriend);
-        log.info("Пользователь c id={} успешно добавлен в друзья пользователю c id={}",idFriend,idUser);
+        log.info("Пользователь c id={} успешно добавлен в друзья пользователю c id={}", idFriend, idUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -47,7 +47,7 @@ public class FriendsDaoImpl implements FriendsDao {
         }
 
         jdbcTemplate.update("DELETE FROM friends WHERE id_user = ? AND id_friend = ?", idUser, idFriend);
-        log.info("Пользователь c id={} успешно удален из друзей пользователя c id={}",idFriend,idUser);
+        log.info("Пользователь c id={} успешно удален из друзей пользователя c id={}", idFriend, idUser);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface MpaDao {
 
-    List<MPA> getAll ();
-    MPA getById (Integer id);
+    List<MPA> getAll();
+
+    MPA getById(Integer id);
 }
