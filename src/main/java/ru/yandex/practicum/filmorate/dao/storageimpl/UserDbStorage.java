@@ -1,9 +1,8 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.dao.storageimpl;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -13,20 +12,16 @@ import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import javax.validation.constraints.Min;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public UserDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     @Override
     public List<User> getAll() {
@@ -55,7 +50,7 @@ public class UserDbStorage implements UserStorage {
 
         user.setId(keyHolder.getKey().intValue());
 
-        log.info("Пользователь с id=" + user.getId() + " добавлен");
+        log.info("Пользователь с id={} добавлен",user.getId());
         return user;
     }
 
@@ -77,10 +72,9 @@ public class UserDbStorage implements UserStorage {
                     user.getBirthday(),
                     user.getId());
 
-            log.info("Пользователь успешно изменен");
+            log.info("Пользователь c id={} успешно изменен",user.getId());
             return user;
         } else {
-//            log.warn("Пользователь с id " + user.getId() + " отсутствует");
             throw new EntityNotFoundException(UserDbStorage.class);
         }
     }
@@ -89,11 +83,10 @@ public class UserDbStorage implements UserStorage {
     public User getById(Integer id) {
         if (contains(id)) {
             String sql = "SELECT * FROM mov_users WHERE id = ?";
-            User user = jdbcTemplate.queryForObject(sql, userRowMapper(), id );
-            log.info("Пользователь с id " + id + " получен");
+            User user = jdbcTemplate.queryForObject(sql, userRowMapper(), id);
+            log.info("Пользователь с id={} получен",id);
             return user;
         } else {
-//            log.warn("Пользователь с id " + id + " отсутствует");
             throw new EntityNotFoundException(UserDbStorage.class);
         }
     }
@@ -110,10 +103,9 @@ public class UserDbStorage implements UserStorage {
 
             String sql = "SELECT * FROM mov_users WHERE id IN (SELECT id_friend FROM friends WHERE id_user = ?)";
 
-            log.info("Список друзей пользователя " + id + " получен");
+            log.info("Список друзей пользователя c id={} получен",id);
             return jdbcTemplate.query(sql, userRowMapper(), id);
         } else {
-//            log.warn("Пользователь с id " + id + " отсутствует");
             throw new EntityNotFoundException(UserDbStorage.class);
         }
     }
@@ -121,15 +113,12 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getMutualFriends(Integer idUser, Integer otherIdUser) {
         if (idUser.equals(otherIdUser)) {
-            log.warn("Значения не должны быть одинаковыми");
             throw new IncorrectArgumentsException(UserDbStorage.class);
         }
         if (!contains(idUser)) {
-            log.warn("Пользователь с id " + idUser + " отсутствует");
             throw new EntityNotFoundException(UserDbStorage.class);
         }
         if (!contains(otherIdUser)) {
-            log.warn("Пользователь с id " + otherIdUser + " отсутствует");
             throw new EntityNotFoundException(UserDbStorage.class);
         }
 
@@ -138,7 +127,7 @@ public class UserDbStorage implements UserStorage {
                 "FROM friends " +
                 "WHERE id_user =" + idUser + "))";
 
-        log.info("Список общих друзей пользователей получен");
+        log.info("Список общих друзей пользователей c id={} и c id={} получен",idUser,otherIdUser);
         return jdbcTemplate.query(sqlQuery, userRowMapper());
     }
 

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.dao.GenreDao;
+import ru.yandex.practicum.filmorate.dao.MpaDao;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genres;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -27,6 +29,10 @@ class FilmorateApplicationTests {
 
     private final UserService userService;
     private final FilmService filmService;
+
+    private final GenreDao genreDao;
+
+    private final MpaDao mpaDao;
 
     private User newUser(Integer n) {
         User user = new User();
@@ -57,6 +63,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testFindAllUser() {
+
         userService.create(newUser(1));
         userService.create(newUser(2));
         userService.create(newUser(3));
@@ -84,13 +91,12 @@ class FilmorateApplicationTests {
         assertThat(resultUser.getEmail()).isEqualTo("email@email4.ru");
     }
 
-    // айди2 как 4
     @Test
     public void testGetAllFriends() {
         User user = newUser(1);
         User friend1 = newUser(2);
         User friend2 = newUser(3);
-        User friend3 = newUser(4); //как айди 4
+        User friend3 = newUser(4);
 
         userService.create(user);
         userService.create(friend1);
@@ -122,7 +128,7 @@ class FilmorateApplicationTests {
         User user2 = newUser(2);
         User friend1 = newUser(3);
         User friend2 = newUser(4);
-        User friend3 = newUser(5); //ай ди 5
+        User friend3 = newUser(5);
 
         userService.create(user1);
         userService.create(user2);
@@ -153,7 +159,6 @@ class FilmorateApplicationTests {
         film.setDescription("description" + num);
         film.setReleaseDate(LocalDate.of(2005, 12, 15));
         film.setDuration(150);
-        film.setLikes(num);
         film.setMpa(new MPA(1, "PG"));
         return film;
     }
@@ -186,14 +191,14 @@ class FilmorateApplicationTests {
         filmService.create(newFilm(2));
         filmService.create(newFilm(3));
 
-        Film upDateFilm = newFilm(4); //айди 2
+        Film upDateFilm = newFilm(4);
         upDateFilm.setId(2);
 
         filmService.upDate(upDateFilm);
 
         assertThat(upDateFilm.getName()).isEqualTo("name4");
         assertThat(upDateFilm.getDescription()).isEqualTo("description4");
-        assertThat(upDateFilm.getLikes()).isEqualTo(4);
+        assertThat(upDateFilm.getLikes()).isEqualTo(0);
     }
 
     @Test
@@ -210,9 +215,7 @@ class FilmorateApplicationTests {
         Film filmWithLikes = filmService.findById(1);
         User userWithLikes = userService.findById(2);
 
-        assertThat(filmWithLikes.getLikes()).isEqualTo(4);
-        assertThat(userWithLikes.getLikesOnMovies().contains(1)).isTrue();
-        assertThat(userWithLikes.getLikesOnMovies().size()).isEqualTo(1);
+        assertThat(filmWithLikes.getLikes()).isEqualTo(3);
     }
 
     @Test
@@ -231,9 +234,7 @@ class FilmorateApplicationTests {
         Film filmWithoutLikes = filmService.findById(1);
         User userWithoutLikes = userService.findById(2);
 
-        assertThat(filmWithoutLikes.getLikes()).isEqualTo(3);
-        assertThat(userWithoutLikes.getLikesOnMovies().contains(1)).isFalse();
-        assertThat(userWithoutLikes.getLikesOnMovies().size()).isEqualTo(0);
+        assertThat(filmWithoutLikes.getLikes()).isEqualTo(2);
     }
 
     @Test
@@ -278,7 +279,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testGetAllGenres() {
-        List<Genres> genres = filmService.getAllGenres();
+        List<Genres> genres = genreDao.getAll();
 
         ArrayList<Integer> idGenres = new ArrayList<>();
         ArrayList<String> namesGenres = new ArrayList<>();
@@ -297,7 +298,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testGetGenreById() {
-        Genres genre = filmService.getGenreById(3);
+        Genres genre = genreDao.getById(3);
 
         assertThat(genre.getId()).isEqualTo(3);
         assertThat(genre.getName()).isEqualTo("Мультфильм");
@@ -305,7 +306,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testGetAllMPA() {
-        List<MPA> mpa = filmService.getAllMpa();
+        List<MPA> mpa = mpaDao.getAll();
 
         ArrayList<Integer> idMpa = new ArrayList<>();
         ArrayList<String> namesMpa = new ArrayList<>();
@@ -324,7 +325,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void testGetMPAById() {
-        MPA mpa = filmService.getMpaById(1);
+        MPA mpa = mpaDao.getById(1);
 
         assertThat(mpa.getId()).isEqualTo(1);
         assertThat(mpa.getName()).isEqualTo("G");

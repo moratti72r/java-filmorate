@@ -1,7 +1,7 @@
-package ru.yandex.practicum.filmorate.dao;
+package ru.yandex.practicum.filmorate.dao.storageimpl;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -13,20 +13,16 @@ import ru.yandex.practicum.filmorate.model.Genres;
 import ru.yandex.practicum.filmorate.model.MPA;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import javax.validation.constraints.Min;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
 
 @Slf4j
 @Component
+@AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
-        this.jdbcTemplate = jdbcTemplate;
-    }
 
     private final String sq = "SELECT fgm.id,fgm.name,fgm.description,fgm.release_date,fgm.duration,fgm.likes," +
             "fgm.mpa,m.name_mpa,fgm.id_genre,fgm.name_genre " +
@@ -77,7 +73,7 @@ public class FilmDbStorage implements FilmStorage {
                         gen.getId());
             }
         }
-        log.info("Фильм с id=" + film.getId() + " успешно добавлен");
+        log.info("Фильм с id={} успешно добавлен",film.getId());
         return film;
     }
 
@@ -115,10 +111,9 @@ public class FilmDbStorage implements FilmStorage {
                 }
             }
         } else {
-//            log.warn("Фильм с id " + film.getId() + " отсутствует");
             throw new EntityNotFoundException(FilmDbStorage.class);
         }
-        log.info("Фильм с id=" + film.getId() + " успешно изменен");
+        log.info("Фильм с id={} успешно изменен",film.getId());
         return film;
     }
 
@@ -131,7 +126,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getTopFilms(int limit) {
         String sqlQuery = sq + "ORDER BY likes DESC LIMIT ?";
-        log.info("Получены " + limit + " наиболее популярных фильмов");
+        log.info("Получены {} наиболее популярных фильмов",limit);
         return new ArrayList<>(jdbcTemplate.query(sqlQuery, extractor(), limit).values());
     }
 
@@ -146,10 +141,9 @@ public class FilmDbStorage implements FilmStorage {
                     "ON g.id=fg.id_genre ) " +
                     "ON f.id=id_film where f.id = ?) AS fgm ON m.id=mpa ";
             Film film = jdbcTemplate.query(sqq, extractor(), id).get(id);
-            log.info("Фильм с id=" + id + " получен");
+            log.info("Фильм с id={} получен",film.getId());
             return film;
         } else {
-//            log.warn("Фильм с id " + id + " отсутствует");
             throw new EntityNotFoundException(FilmDbStorage.class);
         }
     }
@@ -186,6 +180,4 @@ public class FilmDbStorage implements FilmStorage {
             return films;
         };
     }
-
-
 }

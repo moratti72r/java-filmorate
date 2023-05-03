@@ -2,13 +2,13 @@ package ru.yandex.practicum.filmorate.exception;
 
 public class IncorrectArgumentsException extends RuntimeException {
 
-    String message;
+    private Class clazz;
 
-    public IncorrectArgumentsException(String message) {
-        this.message = message;
+    public IncorrectArgumentsException(Class clazz) {
+        this.clazz = clazz;
     }
 
     public String getMessage() {
-        return message;
+        return clazz.getName();
     }
 }

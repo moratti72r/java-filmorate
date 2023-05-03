@@ -20,12 +20,5 @@ public interface FilmStorage {
 
     Film getById(Integer id);
 
-    public List<Genres> getAllGenres();
-
-    public Genres getGenreById(Integer id);
-
-    public List<MPA> getAllMPA();
-
-    public MPA getMpaById(Integer id);
 
 }
