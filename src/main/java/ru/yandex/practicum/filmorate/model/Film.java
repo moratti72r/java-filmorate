@@ -32,9 +32,9 @@ public class Film {
     @JsonIgnore
     private int likes;
 
-    Set<Genres> genres = new TreeSet<>();
+    private Set<Genres> genres = new TreeSet<>();
 
     @NotNull
-    MPA mpa;
+    private MPA mpa;
 
 }

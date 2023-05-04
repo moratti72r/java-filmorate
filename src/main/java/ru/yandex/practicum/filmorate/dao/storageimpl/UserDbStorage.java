@@ -1,14 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.storageimpl;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
-import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,7 +13,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
 
-@Slf4j
 @Component
 @AllArgsConstructor
 public class UserDbStorage implements UserStorage {
@@ -25,7 +21,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAll() {
-        log.info("Список пользователей получен");
         return jdbcTemplate.query("SELECT * FROM mov_users", userRowMapper());
     }
 
@@ -50,84 +45,58 @@ public class UserDbStorage implements UserStorage {
 
         user.setId(keyHolder.getKey().intValue());
 
-        log.info("Пользователь с id={} добавлен",user.getId());
         return user;
     }
 
     @Override
-    public User upDate(User user) {
-        SqlRowSet usersRows = jdbcTemplate.queryForRowSet("SELECT * FROM mov_users WHERE id = ?", user.getId());
-        if (usersRows.next()) {
-            String sqlQuery = "UPDATE mov_users SET " +
-                    "email = ?," +
-                    "login = ?," +
-                    "name = ?," +
-                    "birthday = ?" +
-                    " WHERE id = ?";
+    public int upDate(User user) {
+        String sqlQuery = "UPDATE mov_users SET " +
+                "email = ?," +
+                "login = ?," +
+                "name = ?," +
+                "birthday = ?" +
+                " WHERE id = ?";
 
-            jdbcTemplate.update(sqlQuery,
-                    user.getEmail(),
-                    user.getLogin(),
-                    user.getName(),
-                    user.getBirthday(),
-                    user.getId());
+        int result = jdbcTemplate.update(sqlQuery,
+                user.getEmail(),
+                user.getLogin(),
+                user.getName(),
+                user.getBirthday(),
+                user.getId());
+        return result;
+    }
 
-            log.info("Пользователь c id={} успешно изменен",user.getId());
-            return user;
-        } else {
-            throw new EntityNotFoundException(UserDbStorage.class);
-        }
+
+    @Override
+    public User getById(int id) {
+        String sql = "SELECT * FROM mov_users WHERE id = ?";
+        User user = jdbcTemplate.queryForObject(sql, userRowMapper(), id);
+        return user;
+
     }
 
     @Override
-    public User getById(Integer id) {
-        if (contains(id)) {
-            String sql = "SELECT * FROM mov_users WHERE id = ?";
-            User user = jdbcTemplate.queryForObject(sql, userRowMapper(), id);
-            log.info("Пользователь с id={} получен",id);
-            return user;
-        } else {
-            throw new EntityNotFoundException(UserDbStorage.class);
-        }
-    }
-
-    @Override
-    public boolean contains(Integer id) {
+    public boolean contains(int id) {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet("select 1 from mov_users where id = ?", id);
         return userRows.next();
     }
 
     @Override
-    public List<User> getAllFriends(Integer id) {
-        if (contains(id)) {
+    public List<User> getAllFriends(int id) {
 
-            String sql = "SELECT * FROM mov_users WHERE id IN (SELECT id_friend FROM friends WHERE id_user = ?)";
+        String sql = "SELECT * FROM mov_users WHERE id IN (SELECT id_friend FROM friends WHERE id_user = ?)";
 
-            log.info("Список друзей пользователя c id={} получен",id);
-            return jdbcTemplate.query(sql, userRowMapper(), id);
-        } else {
-            throw new EntityNotFoundException(UserDbStorage.class);
-        }
+        return jdbcTemplate.query(sql, userRowMapper(), id);
     }
 
     @Override
-    public List<User> getMutualFriends(Integer idUser, Integer otherIdUser) {
-        if (idUser.equals(otherIdUser)) {
-            throw new IncorrectArgumentsException(UserDbStorage.class);
-        }
-        if (!contains(idUser)) {
-            throw new EntityNotFoundException(UserDbStorage.class);
-        }
-        if (!contains(otherIdUser)) {
-            throw new EntityNotFoundException(UserDbStorage.class);
-        }
+    public List<User> getMutualFriends(int idUser, int otherIdUser) {
 
         String sqlQuery = "SELECT * FROM mov_users WHERE id IN (SELECT id_friend FROM friends " +
                 "WHERE id_user=" + otherIdUser + " AND id_friend IN (SELECT id_friend " +
                 "FROM friends " +
                 "WHERE id_user =" + idUser + "))";
 
-        log.info("Список общих друзей пользователей c id={} и c id={} получен",idUser,otherIdUser);
         return jdbcTemplate.query(sqlQuery, userRowMapper());
     }
 
@@ -143,9 +112,4 @@ public class UserDbStorage implements UserStorage {
             return user;
         };
     }
-
-    private RowMapper<Integer> mapper(String nameColumn) {
-        return (rs, rowNum) -> rs.getInt(nameColumn);
-    }
-
 }

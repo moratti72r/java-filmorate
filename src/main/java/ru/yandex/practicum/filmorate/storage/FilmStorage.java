@@ -11,13 +11,13 @@ public interface FilmStorage {
 
     Film create(Film film);
 
-    Film upDate(Film film);
+    int upDate(Film film);
 
-    boolean contains(Integer id);
+    boolean contains(int id);
 
     List<Film> getTopFilms(int limit);
 
-    Film getById(Integer id);
+    Film getById(int id);
 
 
 }

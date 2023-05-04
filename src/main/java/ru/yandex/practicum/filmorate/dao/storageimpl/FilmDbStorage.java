@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.dao.storageimpl;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genres;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -17,7 +15,6 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.*;
 
-@Slf4j
 @Component
 @AllArgsConstructor
 public class FilmDbStorage implements FilmStorage {
@@ -34,7 +31,6 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> getAll() {
-        log.info("Список фильмов получен");
         return new ArrayList<>(jdbcTemplate.query(sq, extractor()).values());
     }
 
@@ -73,52 +69,49 @@ public class FilmDbStorage implements FilmStorage {
                         gen.getId());
             }
         }
-        log.info("Фильм с id={} успешно добавлен",film.getId());
         return film;
     }
 
     @Override
-    public Film upDate(Film film) {
-        SqlRowSet filmsRows = jdbcTemplate.queryForRowSet("select * from films where id = ?", film.getId());
-        if (filmsRows.next()) {
-            String sqlQuery = "UPDATE films SET name = ?," +
-                    "description = ?," +
-                    "release_date = ?," +
-                    "duration = ?," +
-                    "likes = ?," +
-                    "mpa = ?" +
-                    " WHERE id = ?";
+    public int upDate(Film film) {
+        String sqlQuery = "UPDATE films SET name = ?," +
+                "description = ?," +
+                "release_date = ?," +
+                "duration = ?," +
+                "likes = ?," +
+                "mpa = ?" +
+                " WHERE id = ?";
 
-            jdbcTemplate.update(sqlQuery,
-                    film.getName(),
-                    film.getDescription(),
-                    film.getReleaseDate(),
-                    film.getDuration(),
-                    film.getLikes(),
-                    film.getMpa().getId(),
-                    film.getId());
+        int result = jdbcTemplate.update(sqlQuery,
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getLikes(),
+                film.getMpa().getId(),
+                film.getId());
 
-            jdbcTemplate.update("DELETE FROM films_genres WHERE id_film = ?", film.getId());
-
-            if (!film.getGenres().isEmpty()) {
-                for (Genres gen : film.getGenres()) {
-                    String sQuery = "INSERT INTO films_genres (id_film,id_genre) " +
-                            "VALUES (?,?)";
-
-                    jdbcTemplate.update(sQuery,
-                            film.getId(),
-                            gen.getId());
-                }
-            }
-        } else {
-            throw new EntityNotFoundException(FilmDbStorage.class);
+        if (result == 0) {
+            return result;
         }
-        log.info("Фильм с id={} успешно изменен",film.getId());
-        return film;
+
+        jdbcTemplate.update("DELETE FROM films_genres WHERE id_film = ?", film.getId());
+
+        if (!film.getGenres().isEmpty()) {
+            for (Genres gen : film.getGenres()) {
+                String sQuery = "INSERT INTO films_genres (id_film,id_genre) " +
+                        "VALUES (?,?)";
+
+                jdbcTemplate.update(sQuery,
+                        film.getId(),
+                        gen.getId());
+            }
+        }
+        return result;
     }
 
     @Override
-    public boolean contains(Integer id) {
+    public boolean contains(int id) {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet("select 1 from films where id = ?", id);
         return filmRows.next();
     }
@@ -126,26 +119,20 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getTopFilms(int limit) {
         String sqlQuery = sq + "ORDER BY likes DESC LIMIT ?";
-        log.info("Получены {} наиболее популярных фильмов",limit);
         return new ArrayList<>(jdbcTemplate.query(sqlQuery, extractor(), limit).values());
     }
 
     @Override
-    public Film getById(Integer id) {
-        if (contains(id)) {
-            String sqq = "SELECT fgm.id,fgm.name,fgm.description,fgm.release_date,fgm.duration,fgm.likes," +
-                    "fgm.mpa,m.name_mpa,fgm.id_genre,fgm.name_genre " +
-                    "FROM mpa AS m RIGHT JOIN (SELECT * FROM films AS f LEFT JOIN " +
-                    "(SELECT fg.id_film,fg.id_genre,g.name_genre " +
-                    "FROM films_genres AS fg LEFT JOIN genres AS g " +
-                    "ON g.id=fg.id_genre ) " +
-                    "ON f.id=id_film where f.id = ?) AS fgm ON m.id=mpa ";
-            Film film = jdbcTemplate.query(sqq, extractor(), id).get(id);
-            log.info("Фильм с id={} получен",film.getId());
-            return film;
-        } else {
-            throw new EntityNotFoundException(FilmDbStorage.class);
-        }
+    public Film getById(int id) {
+        String sqq = "SELECT fgm.id,fgm.name,fgm.description,fgm.release_date,fgm.duration,fgm.likes," +
+                "fgm.mpa,m.name_mpa,fgm.id_genre,fgm.name_genre " +
+                "FROM mpa AS m RIGHT JOIN (SELECT * FROM films AS f LEFT JOIN " +
+                "(SELECT fg.id_film,fg.id_genre,g.name_genre " +
+                "FROM films_genres AS fg LEFT JOIN genres AS g " +
+                "ON g.id=fg.id_genre ) " +
+                "ON f.id=id_film where f.id = ?) AS fgm ON m.id=mpa ";
+        Film film = jdbcTemplate.query(sqq, extractor(), id).get(id);
+        return film;
     }
 
     private ResultSetExtractor<Map<Integer, Film>> extractor() {

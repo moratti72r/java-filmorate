@@ -6,8 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.dao.GenreDao;
-import ru.yandex.practicum.filmorate.dao.MpaDao;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genres;
 import ru.yandex.practicum.filmorate.model.MPA;
@@ -30,9 +30,9 @@ class FilmorateApplicationTests {
     private final UserService userService;
     private final FilmService filmService;
 
-    private final GenreDao genreDao;
+    private final GenreStorage genreDao;
 
-    private final MpaDao mpaDao;
+    private final MpaStorage mpaDao;
 
     private User newUser(Integer n) {
         User user = new User();
