@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dao.FriendsDao;
+import ru.yandex.practicum.filmorate.dao.storageimpl.UserDbStorage;
+import ru.yandex.practicum.filmorate.exception.EntityNotFoundException;
 import ru.yandex.practicum.filmorate.exception.IncorrectArgumentsException;
-import ru.yandex.practicum.filmorate.exception.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,66 +18,82 @@ import java.util.*;
 @RequiredArgsConstructor
 public class UserService {
 
+
     private final UserStorage userStorage;
+    private final FriendsDao friendsDao;
 
     public List<User> findAll() {
-        return new ArrayList<User>(userStorage.getAll().values());
+        log.info("Список пользователей получен");
+        return userStorage.getAll();
     }
 
-    public User findById(Integer id) {
-
-        return userStorage.getById(id);
+    public User findById(int id) {
+        if (userStorage.contains(id)) {
+            log.info("Пользователь с id={} получен", id);
+            return userStorage.getById(id);
+        } else {
+            throw new EntityNotFoundException(UserDbStorage.class);
+        }
     }
 
-    public List<User> findAllFriends(Integer id) {
-        return userStorage.getAllFriends(id);
+    public List<User> findAllFriends(int id) {
+        if (userStorage.contains(id)) {
+            log.info("Список друзей пользователя c id={} получен", id);
+            return userStorage.getAllFriends(id);
+        } else {
+            throw new EntityNotFoundException(UserDbStorage.class);
+        }
     }
 
-    public List<User> findMutualFriends(Integer idUser, Integer otherIdUser) {
+    public List<User> findMutualFriends(int idUser, int otherIdUser) {
+        if (idUser == otherIdUser) {
+            throw new IncorrectArgumentsException(UserService.class);
+        }
+        if (!userStorage.contains(idUser)) {
+            throw new EntityNotFoundException(UserService.class);
+        }
+        if (!userStorage.contains(otherIdUser)) {
+            throw new EntityNotFoundException(UserService.class);
+        }
+        log.info("Список общих друзей пользователей c id={} и c id={} получен", idUser, otherIdUser);
         return userStorage.getMutualFriends(idUser, otherIdUser);
     }
 
-    public User addToFriends(Integer idUser, Integer idFriend) {
-        if (idUser.equals(idFriend)) {
-            log.warn("Значения не должны быть одинаковыми");
-            throw new IncorrectArgumentsException("Значения не должны быть одинаковыми");
+    public void addToFriends(int idUser, int idFriend) {
+        if (!userStorage.contains(idUser) || !userStorage.contains(idFriend)) {
+            throw new EntityNotFoundException(UserService.class);
         }
-        if (!userStorage.contains(idUser)) {
-            log.warn("Пользователь с id " + idUser + " отсутствует");
-            throw new UserNotFoundException("Пользователь с id " + idUser + " отсутствует");
-        }
-        if (!userStorage.contains(idFriend)) {
-            log.warn("Пользователь с id " + idUser + " отсутствует");
-            throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
-        }
-        findById(idUser).getFriends().add(idFriend);
-        findById(idFriend).getFriends().add(idUser);
 
-        log.info("Пользователь успешно добавлен в друзья");
+        int result = friendsDao.addToFriends(idUser, idFriend);
 
-        return findById(idUser);
+        if (idUser == idFriend || result == 0) {
+            throw new IncorrectArgumentsException(UserService.class);
+        }
+
+        log.info("Пользователь c id={} успешно добавлен в друзья пользователю c id={}", idFriend, idUser);
     }
 
-    public User removeToFriends(Integer idUser, Integer idFriend) {
-        if (findById(idUser).getFriends().contains(idFriend)) {
-            findById(idFriend).getFriends().remove(idUser);
-            findById(idUser).getFriends().remove(idFriend);
+    public void removeToFriends(int idUser, int idFriend) {
 
-            log.info("Пользователь успешно удален из друзей");
-
-            return findById(idUser);
-        } else {
-
-            log.warn("Пользователь с id " + idFriend + " отсутствует");
-
-            throw new UserNotFoundException("Пользователь с id " + idFriend + " отсутствует");
+        if (!userStorage.contains(idUser) || !userStorage.contains(idFriend)) {
+            throw new EntityNotFoundException(UserService.class);
         }
+
+        int result = friendsDao.removeToFriends(idUser, idFriend);
+
+        if (idUser == idFriend || result == 0) {
+            throw new IncorrectArgumentsException(UserService.class);
+        }
+
+        log.info("Пользователь c id={} успешно удален из друзей пользователя c id={}", idFriend, idUser);
+
     }
 
     public User create(User user) {
         if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
+        log.info("Пользователь с id={} добавлен", user.getId());
         return userStorage.create(user);
     }
 
@@ -83,8 +101,13 @@ public class UserService {
         if (StringUtils.isEmpty(user.getName())) {
             user.setName(user.getLogin());
         }
-        return userStorage.upDate(user);
+
+        int result = userStorage.upDate(user);
+
+        if (result == 0) {
+            throw new EntityNotFoundException(UserService.class);
+        }
+        log.info("Пользователь c id={} успешно изменен", user.getId());
+        return user;
     }
-
-
 }

@@ -3,21 +3,20 @@ package ru.yandex.practicum.filmorate.storage;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
-import java.util.Map;
 
 public interface UserStorage {
 
-    Map<Integer, User> getAll();
+    List<User> getAll();
 
-    User create (User user);
+    User create(User user);
 
-    User upDate (User user);
+    int upDate(User user);
 
-    User getById(Integer id);
+    User getById(int id);
 
-    boolean contains (Integer id);
+    boolean contains(int id);
 
-    List<User> getAllFriends(Integer id);
+    List<User> getAllFriends(int id);
 
-    List<User> getMutualFriends(Integer idUser, Integer otherIdUser);
+    List<User> getMutualFriends(int idUser, int otherIdUser);
 }

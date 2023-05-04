@@ -3,31 +3,27 @@ package ru.yandex.practicum.filmorate.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Past;
+import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
 
 @Data
 public class User {
+
     private int id;
 
+    @NotEmpty
     @Email
     private String email;
 
     @NotBlank
+    @Pattern(regexp = "^[a-zA-Z0-9!@#$%^&*]{6,12}$")
     private String login;
 
     private String name;
 
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Past
+    @PastOrPresent
     private LocalDate birthday;
-
-    private Set<Integer> friends = new HashSet<>();
-
-    private Set<Integer> likes = new HashSet<>();
 
 }
